@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: donezo-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: donezo
+      POSTGRES_USER: donezo_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina a senha no arquivo .env}
+
+    ports:
+      - "127.0.0.1:5433:5432"
+
+    volumes:
+      - donezo_data:/var/lib/postgresql/data
+
+volumes:
+  donezo_data:
