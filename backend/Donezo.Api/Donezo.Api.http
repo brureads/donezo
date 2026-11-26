@@ -1,0 +1,6 @@
+@Donezo.Api_HostAddress = http://localhost:5237
+
+GET {{Donezo.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

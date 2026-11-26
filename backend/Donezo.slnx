@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Donezo.Api/Donezo.Api.csproj" />
+  <Project Path="Donezo.Application/Donezo.Application.csproj" />
+  <Project Path="Donezo.Domain/Donezo.Domain.csproj" />
+  <Project Path="Donezo.Infrastructure/Donezo.Infrastructure.csproj" />
+  <Project Path="Donezo.Tests/Donezo.Tests.csproj" />
+</Solution>
