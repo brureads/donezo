@@ -31,6 +31,8 @@ builder.Services.AddSingleton<ITokenService>(
     new TokenService(jwtKey));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 // Configuração JWT
 builder.Services
