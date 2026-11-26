@@ -1,14 +1,67 @@
+using System.Text;
+using Donezo.Application.Interfaces;
+using Donezo.Infrastructure.Data;
+using Donezo.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Controllers e documentação
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Banco de dados
+builder.Services.AddDbContext<DonezoDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException(
+            "Connection string not configured.")));
+
+// Chave secreta JWT
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "JWT key not configured.");
+
+// Serviços de autenticação
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+
+builder.Services.AddSingleton<ITokenService>(
+    new TokenService(jwtKey));
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Configuração JWT
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = "Donezo",
+                ValidAudience = "DonezoClient",
+
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtKey)),
+
+                ClockSkew = TimeSpan.Zero
+            };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Documentação da API
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -16,6 +69,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
